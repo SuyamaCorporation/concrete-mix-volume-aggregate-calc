@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Concrete Mix Calculator</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen py-10 px-4">
+<div class="max-w-xl mx-auto">
+  <div class="bg-white rounded-2xl shadow-lg p-8">
+    <div class="flex items-center justify-between mb-1">
+      <h1 class="text-2xl font-bold text-gray-800">Concrete Mix Calculator</h1>
+      <button id="unitToggle"
+        class="text-sm bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-semibold px-3 py-1 rounded-lg transition">
+        Switch to Imperial
+      </button>
+    </div>
+    <p class="text-gray-500 text-sm mb-6">Calculate cement, sand, and gravel for a slab.</p>
+
+    <div class="grid grid-cols-3 gap-3 mb-4">
+      <div>
+        <label for="length" class="block text-sm font-medium text-gray-700 mb-1">Length <span id="lUnit" class="text-gray-400">(m)</span></label>
+        <input id="length" type="number" min="0" step="0.01" placeholder="0.00"
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      </div>
+      <div>
+        <label for="width" class="block text-sm font-medium text-gray-700 mb-1">Width <span id="wUnit" class="text-gray-400">(m)</span></label>
+        <input id="width" type="number" min="0" step="0.01" placeholder="0.00"
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      </div>
+      <div>
+        <label for="depth" class="block text-sm font-medium text-gray-700 mb-1">Depth <span id="dUnit" class="text-gray-400">(cm)</span></label>
+        <input id="depth" type="number" min="0" step="0.1" placeholder="0.0"
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700 mb-2">Mix Ratio (Cement : Sand : Gravel)</label>
+      <div class="flex gap-2 flex-wrap">
+        <button class="ratio-btn bg-indigo-600 text-white px-3 py-1 rounded-lg text-sm font-semibold" data-ratio="1:2:3">1:2:3</button>
+        <button class="ratio-btn bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-sm font-semibold hover:bg-gray-200" data-ratio="1:1.5:3">1:1.5:3</button>
+        <button class="ratio-btn bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-sm font-semibold hover:bg-gray-200" data-ratio="1:3:6">1:3:6</button>
+        <button class="ratio-btn bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-sm font-semibold hover:bg-gray-200" data-ratio="custom">Custom</button>
+      </div>
+      <div id="customRatio" class="hidden mt-2 grid grid-cols-3 gap-2">
+        <div>
+          <label for="rc" class="block text-xs text-gray-500 mb-1">Cement</label>
+          <input id="rc" type="number" min="0" step="0.1" value="1"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label for="rs" class="block text-xs text-gray-500 mb-1">Sand</label>
+          <input id="rs" type="number" min="0" step="0.1" value="2"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label for="rg" class="block text-xs text-gray-500 mb-1">Gravel</label>
+          <input id="rg" type="number" min="0" step="0.1" value="3"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-4 bg-gray-50 rounded-xl p-4">
+      <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Unit Costs (optional)</p>
+      <div class="grid grid-cols-3 gap-2">
+        <div>
+          <label for="costCement" class="block text-xs text-gray-500 mb-1">Cement ($/bag)</label>
+          <input id="costCement" type="number" min="0" step="0.01" placeholder="0.00"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label for="costSand" class="block text-xs text-gray-500 mb-1" id="sandCostLabel">Sand ($/m³)</label>
+          <input id="costSand" type="number" min="0" step="0.01" placeholder="0.00"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label for="costGravel" class="block text-xs text-gray-500 mb-1" id="gravelCostLabel">Gravel ($/m³)</label>
+          <input id="costGravel" type="number" min="0" step="0.01" placeholder="0.00"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+      </div>
+    </div>
+
+    <button id="calcBtn"
+      class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-lg transition mb-4">
+      Calculate
+    </button>
+
+    <div id="results" class="hidden bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl p-5 border border-indigo-100">
+      <p class="text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-3">Results</p>
+      <div class="grid grid-cols-2 gap-3" id="resultGrid"></div>
+      <div id="costRow" class="hidden mt-3 pt-3 border-t border-indigo-100">
+        <p class="text-sm text-gray-600">Estimated Total Cost: <strong id="totalCost" class="text-indigo-700 text-lg"></strong></p>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+let isMetric = true;
+let selectedRatio = '1:2:3';
+
+function getRatio() {
+  if (selectedRatio === 'custom') {
+    const c = parseFloat(document.getElementById('rc').value) || 1;
+    const s = parseFloat(document.getElementById('rs').value) || 2;
+    const g = parseFloat(document.getElementById('rg').value) || 3;
+    return [c, s, g];
+  }
+  return selectedRatio.split(':').map(Number);
+}
+
+document.querySelectorAll('.ratio-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.ratio-btn').forEach(b => {
+      b.className = 'ratio-btn bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-sm font-semibold hover:bg-gray-200';
+    });
+    btn.className = 'ratio-btn bg-indigo-600 text-white px-3 py-1 rounded-lg text-sm font-semibold';
+    selectedRatio = btn.dataset.ratio;
+    document.getElementById('customRatio').classList.toggle('hidden', selectedRatio !== 'custom');
+  });
+});
+
+document.getElementById('unitToggle').addEventListener('click', () => {
+  isMetric = !isMetric;
+  document.getElementById('unitToggle').textContent = isMetric ? 'Switch to Imperial' : 'Switch to Metric';
+  document.getElementById('lUnit').textContent = isMetric ? '(m)' : '(ft)';
+  document.getElementById('wUnit').textContent = isMetric ? '(m)' : '(ft)';
+  document.getElementById('dUnit').textContent = isMetric ? '(cm)' : '(in)';
+  document.getElementById('sandCostLabel').textContent = isMetric ? 'Sand ($/m³)' : 'Sand ($/yd³)';
+  document.getElementById('gravelCostLabel').textContent = isMetric ? 'Gravel ($/m³)' : 'Gravel ($/yd³)';
+});
+
+document.getElementById('calcBtn').addEventListener('click', () => {
+  let l = parseFloat(document.getElementById('length').value);
+  let w = parseFloat(document.getElementById('width').value);
+  let d = parseFloat(document.getElementById('depth').value);
+  if (!l || !w || !d) {
+    document.getElementById('results').classList.add('hidden');
+    return;
+  }
+  let volumeM3;
+  if (isMetric) {
+    volumeM3 = l * w * (d / 100);
+  } else {
+    const lm = l * 0.3048;
+    const wm = w * 0.3048;
+    const dm = d * 0.0254;
+    volumeM3 = lm * wm * dm;
+  }
+  const [rc, rs, rg] = getRatio();
+  const total = rc + rs + rg;
+  const dryVolume = volumeM3 * 1.54;
+  const cementVol = (rc / total) * dryVolume;
+  const sandVol = (rs / total) * dryVolume;
+  const gravelVol = (rg / total) * dryVolume;
+  const cementBags = Math.ceil(cementVol * 1440 / 50);
+
+  let volDisplay, sandDisplay, gravelDisplay, volLabel, sandLabel, gravelLabel;
+  if (isMetric) {
+    volDisplay = volumeM3.toFixed(3) + ' m³';
+    sandDisplay = sandVol.toFixed(3) + ' m³';
+    gravelDisplay = gravelVol.toFixed(3) + ' m³';
+    volLabel = 'Total Volume'; sandLabel = 'Sand'; gravelLabel = 'Gravel';
+  } else {
+    const m3ToYd3 = 1.30795;
+    volDisplay = (volumeM3 * m3ToYd3).toFixed(3) + ' yd³';
+    sandDisplay = (sandVol * m3ToYd3).toFixed(3) + ' yd³';
+    gravelDisplay = (gravelVol * m3ToYd3).toFixed(3) + ' yd³';
+    volLabel = 'Total Volume'; sandLabel = 'Sand'; gravelLabel = 'Gravel';
+  }
+
+  document.getElementById('resultGrid').innerHTML = `
+    <div class="bg-white rounded-lg p-3 shadow-sm"><p class="text-xs text-gray-500">${volLabel}</p><p class="text-xl font-bold text-gray-800">${volDisplay}</p></div>
+    <div class="bg-white rounded-lg p-3 shadow-sm"><p class="text-xs text-gray-500">Cement Bags (50 kg)</p><p class="text-xl font-bold text-indigo-700">${cementBags}</p></div>
+    <div class="bg-white rounded-lg p-3 shadow-sm"><p class="text-xs text-gray-500">${sandLabel}</p><p class="text-xl font-bold text-gray-800">${sandDisplay}</p></div>
+    <div class="bg-white rounded-lg p-3 shadow-sm"><p class="text-xs text-gray-500">${gravelLabel}</p><p class="text-xl font-bold text-gray-800">${gravelDisplay}</p></div>
+    <div class="bg-white rounded-lg p-3 shadow-sm col-span-2"><p class="text-xs text-gray-500">Mix Ratio Used</p><p class="text-lg font-bold text-gray-800">${rc}:${rs}:${rg} (cement:sand:gravel)</p></div>`;
+
+  const cc = parseFloat(document.getElementById('costCement').value);
+  const cs = parseFloat(document.getElementById('costSand').value);
+  const cg = parseFloat(document.getElementById('costGravel').value);
+  if (cc || cs || cg) {
+    const mult = isMetric ? 1 : 1.30795;
+    const cost = (cc||0)*cementBags + (cs||0)*sandVol*mult + (cg||0)*gravelVol*mult;
+    document.getElementById('totalCost').textContent = '$' + cost.toFixed(2);
+    document.getElementById('costRow').classList.remove('hidden');
+  } else {
+    document.getElementById('costRow').classList.add('hidden');
+  }
+  document.getElementById('results').classList.remove('hidden');
+});
+</script>
+</body>
+</html>
